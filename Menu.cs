@@ -4,25 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManager.Helpers;
+using TaskManager.Interfaces;
 using TaskManager.Services;
 using static System.Net.Mime.MediaTypeNames;
-using Task = TaskManager.Services.Task;
+using Task = TaskManager.Services.UserTask;
 
 namespace TaskManager
 {
     public class Menu
     {
-        private readonly TaskService _taskService;
 
         public int number;
         public int option;
         public bool continueLoop;
 
-        public Menu() 
-        {
-            IntInputValidator intInputValidator = new IntInputValidator();
+        private readonly ITaskService _taskService;
 
-            _taskService.WelcomeMessage();
+        public Menu()
+        {
+            _taskService = new TaskService();
+        }
+
+        public void ShowMenu() 
+        {
+
+            IntInputValidator intInputValidator = new IntInputValidator();
+            WelcomeMessage welcomeMessage = new WelcomeMessage();
+
+            welcomeMessage.WelcomeMessageGenerator();
 
             do
             {
@@ -39,6 +48,13 @@ namespace TaskManager
                 Console.WriteLine("Please enter the number corresponding to your option");
                 option = intInputValidator.InputValidator();
 
+                if ( option == 7 )
+                {
+                    Console.WriteLine("Thank you for using the task manager!");
+                    Thread.Sleep(100);
+                    System.Environment.Exit(-1);
+                }
+
                 while (option < 1 || option > 7)
                 {
                     Console.WriteLine("Invalid number, please try again!");
@@ -50,7 +66,7 @@ namespace TaskManager
                         _taskService.CreateTask();
                         break;
                     case 2:
-                        //Assign Priority to tasks
+                        _taskService.UpdatePriority();
                         break;
                     case 3:
                         _taskService.TaskCompletion();
@@ -59,10 +75,10 @@ namespace TaskManager
                         _taskService.ShowTask();
                         break;
                     case 5:
-                        //filter, show only complete/incomplete tasks
+                        _taskService.FilterByCompletion();
                         break;
                     case 6:
-                        //sort by priority
+                        _taskService.FilterByPriority();
                         break;
                 }
 
@@ -75,12 +91,13 @@ namespace TaskManager
                 else
                 {
                     continueLoop = false;
-                    Console.WriteLine("Thank you for using the calculator!");
+                    Console.WriteLine("Thank you for using the task manager!");
                     Console.WriteLine("Exiting");
                 }
 
             } while (continueLoop);
 
         }
+
     }
 }
