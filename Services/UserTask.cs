@@ -10,13 +10,25 @@ namespace TaskManager.Services
     public class UserTask
     {
         public string TaskName { get; set; }
-        public string TaskPriority { get; set; }
-        public bool IsTaskComplete { get; set; } = false;
+        public TaskPriority Priority { get; set; }
+        public TaskStatus Status { get; set; } = TaskStatus.Incomplete;
 
         public UserTask()
         {
             
         }
+    }
+    public enum TaskPriority
+    {
+        HighPriority,
+        MediumPriority,
+        LowPriority
+    }
+
+    public enum TaskStatus
+    {
+        Incomplete,
+        Complete
     }
 
 

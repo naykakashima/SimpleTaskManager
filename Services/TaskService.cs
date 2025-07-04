@@ -14,9 +14,11 @@ namespace TaskManager.Services
 {
     public class TaskService : ITaskService
     {
+        TaskDisplayer displayer = new TaskDisplayer();
         List<UserTask> taskList = new List<UserTask>();
 
         IntInputValidator intInputValidator = new IntInputValidator();
+        
 
         public int option;
 
@@ -35,7 +37,6 @@ namespace TaskManager.Services
                 }
 
                 Console.WriteLine("Task name is invalid! Please try again!");
-
             }
             
 
@@ -56,13 +57,13 @@ namespace TaskManager.Services
             switch (option)
             {
                 case 1:
-                    newTask.TaskPriority = "High Priority";
+                    newTask.Priority = TaskPriority.HighPriority;
                     break;
                 case 2:
-                    newTask.TaskPriority = "Medium Priority";
+                    newTask.Priority = TaskPriority.MediumPriority;
                     break;
                 case 3:
-                    newTask.TaskPriority = "Low Priority";
+                    newTask.Priority = TaskPriority.LowPriority;
                     break;
             }
 
@@ -73,24 +74,8 @@ namespace TaskManager.Services
 
         public void ShowTask()
         {
-            Console.WriteLine("Displaying all tasks: ");
-            Console.WriteLine("+-----------------------------------------+");
             var tasks = GetAllTasks();
-            foreach (var task in tasks)
-            {
-                Console.WriteLine("Task Name: " + task.TaskName);
-                Console.WriteLine("Task Priority: " + task.TaskPriority);
-                if (task.IsTaskComplete)
-                {
-                    Console.WriteLine("Task Status: Complete");
-                }
-                else
-                {
-                    Console.WriteLine("Task Status: Incomplete");
-                }
-            }
-            Console.WriteLine("+-----------------------------------------+");
-
+            displayer.DisplayTasks(tasks);
         }
 
         public void TaskCompletion()
@@ -98,13 +83,7 @@ namespace TaskManager.Services
             Console.WriteLine("Displaying all incomlete tasks: ");
 
             var incompleteTasks = GetAllIncompleteTasks();
-            Console.WriteLine("+-----------------------------------------+");
-            foreach (var incompleteTask in incompleteTasks)
-            {
-                Console.WriteLine("Task Name: " + incompleteTask.TaskName);
-                Console.WriteLine("Task Priority: " + incompleteTask.TaskPriority);
-            }
-            Console.WriteLine("+-----------------------------------------+");
+            displayer.DisplayIncompleteTasks(incompleteTasks);
 
             while (true)
             {
@@ -113,7 +92,7 @@ namespace TaskManager.Services
                 if ( !(string.IsNullOrEmpty(IncompleteTaskName)) && (taskList.Any(t => t.TaskName == IncompleteTaskName)))
                 {
                     var index = taskList.FindIndex(t => t.TaskName == IncompleteTaskName);
-                    taskList[index].IsTaskComplete = true;
+                    taskList[index].Status = TaskStatus.Complete;
                     Console.WriteLine("Task Succesfully Complete!");
                     break;
                 }
@@ -128,13 +107,7 @@ namespace TaskManager.Services
             Console.WriteLine("Displaying all incomlete tasks: ");
 
             var incompleteTasks = GetAllIncompleteTasks();
-            Console.WriteLine("+-----------------------------------------+");
-            foreach (var incompleteTask in incompleteTasks)
-            {
-                Console.WriteLine("Task Name: " + incompleteTask.TaskName);
-                Console.WriteLine("Task Priority: " + incompleteTask.TaskPriority);
-            }
-            Console.WriteLine("+-----------------------------------------+");
+            displayer.DisplayIncompleteTasks(incompleteTasks);
 
             while (true)
             {
@@ -161,13 +134,13 @@ namespace TaskManager.Services
                     switch (option)
                     {
                         case 1:
-                            taskList[index].TaskPriority = "High Priority";
+                            taskList[index].Priority = TaskPriority.HighPriority;
                             break;
                         case 2:
-                            taskList[index].TaskPriority = "Medium Priority";
+                            taskList[index].Priority = TaskPriority.MediumPriority;
                             break;
                         case 3:
-                            taskList[index].TaskPriority = "Low Priority";
+                            taskList[index].Priority = TaskPriority.LowPriority;
                             break;
                     }
 
@@ -222,13 +195,13 @@ namespace TaskManager.Services
             switch (option)
             {
                 case 1:
-                    DisplayHighPriorityTasks();
+                    displayer.DisplayHighPriorityTasks(SortByTaskPriority(TaskPriority.HighPriority));
                     break;
                 case 2:
-                    DisplayMediumPriorityTasks();
+                    displayer.DisplayMediumPriorityTasks(SortByTaskPriority(TaskPriority.MediumPriority));
                     break;
                 case 3:
-                    DisplayLowPriorityTasks();
+                    displayer.DisplayLowPriorityTasks(SortByTaskPriority(TaskPriority.LowPriority));
                     break;
             }
         }
@@ -241,115 +214,49 @@ namespace TaskManager.Services
 
         public List<UserTask> GetAllIncompleteTasks()
         {
-            List<UserTask> AllIncompleteTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.IsTaskComplete == false)).ToList();
+            List<UserTask> AllIncompleteTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.Status == TaskStatus.Incomplete)).ToList();
             return AllIncompleteTasks;
         }
 
         public List<UserTask> GetAllCompleteTasks()
         {
-            List<UserTask> AllCompleteTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.IsTaskComplete == true)).ToList();
+            List<UserTask> AllCompleteTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.Status == TaskStatus.Complete)).ToList();
             return AllCompleteTasks;
         }
-
         public void DisplayAllCompleteTasks()
         {
             var completeTasks = GetAllCompleteTasks();
-            if (completeTasks == null)
-            {
-                Console.WriteLine("There are no completed tasks!");
-            } else
-            {
-                Console.WriteLine("+-----------------------------------------+");
-                foreach (var completeTask in completeTasks)
-                {
-                    Console.WriteLine("Task Name: " + completeTask.TaskName);
-                    Console.WriteLine("Task Priority: " + completeTask.TaskPriority);
-                    Console.WriteLine("Task Status: Completed");
-
-                }
-                Console.WriteLine("+-----------------------------------------+");
-            }
+            displayer.DisplayCompleteTasks(completeTasks);
         }
 
         public void DisplayIncompleteTasks()
         {
             var incompleteTasks = GetAllIncompleteTasks();
-            if (incompleteTasks == null)
-            {
-                Console.WriteLine("There are no incomplete tasks!");
-            }
-            else 
-            {
-                Console.WriteLine("+-----------------------------------------+");
-                foreach (var incompleteTask in incompleteTasks)
-                {
-                    Console.WriteLine("Task Name: " + incompleteTask.TaskName);
-                    Console.WriteLine("Task Priority: " + incompleteTask.TaskPriority);
-                    Console.WriteLine("Task Status: Incomplete");
-                }
-                Console.WriteLine("+-----------------------------------------+");
-            }
+            displayer.DisplayIncompleteTasks(incompleteTasks);
         }
 
-        public void DisplayHighPriorityTasks()
+        public List<UserTask> SortByTaskPriority(TaskPriority priority)
         {
-            List<UserTask> AllHighPriorityTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.TaskPriority == "High Priority")).ToList();
+            var TaskList = GetAllTasks();
+            var filterPriorityTask = new List<UserTask>();
 
-            if (AllHighPriorityTasks.Count == 0)
-            {
-                Console.WriteLine("There are no high priority tasks!");
+            if (priority == TaskPriority.HighPriority) {
+                filterPriorityTask = TaskList.Where(UserTask => (UserTask.Priority == TaskPriority.HighPriority)).ToList();
             }
-            else
-            {
-                Console.WriteLine("+-----------------------------------------+");
-                foreach (var highPriorityTask in AllHighPriorityTasks)
-                {
-                    Console.WriteLine("Task Name: " + highPriorityTask.TaskName);
-                    Console.WriteLine("Task Priority: " + highPriorityTask.TaskPriority);
-                    Console.WriteLine("Task Completion Status: " + highPriorityTask.IsTaskComplete);
-                }
-                Console.WriteLine("+-----------------------------------------+");
-            }
-        }
 
-        public void DisplayMediumPriorityTasks()
-        {
-            List<UserTask> AllMediumPriorityTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.TaskPriority == "Medium Priority")).ToList();
 
-            if (AllMediumPriorityTasks.Count == 0)
+            if (priority == TaskPriority.MediumPriority)
             {
-                Console.WriteLine("There are no medium priority tasks!");
+                filterPriorityTask = TaskList.Where(UserTask => (UserTask.Priority == TaskPriority.MediumPriority)).ToList();
             }
-            else
-            {
-                Console.WriteLine("+-----------------------------------------+");
-                foreach (var mediumPriorityTask in AllMediumPriorityTasks)
-                {
-                    Console.WriteLine("Task Name: " + mediumPriorityTask.TaskName);
-                    Console.WriteLine("Task Priority: " + mediumPriorityTask.TaskPriority);
-                    Console.WriteLine("Task Completion Status: " + mediumPriorityTask.IsTaskComplete);
-                }
-                Console.WriteLine("+-----------------------------------------+");
-            }
-        }
 
-        public void DisplayLowPriorityTasks()
-        {
-            List<UserTask> AllLowPriorityTasks = (List<UserTask>)taskList.Where(UserTask => (UserTask.TaskPriority == "Low Priority")).ToList();
-            if (AllLowPriorityTasks.Count == 0)
+
+            if (priority == TaskPriority.LowPriority)
             {
-                Console.WriteLine("There are no low priority tasks!");
-            } else
-            {
-                Console.WriteLine("+-----------------------------------------+");
-                foreach (var lowPriorityTask in AllLowPriorityTasks)
-                {
-                    Console.WriteLine("Task Name: " + lowPriorityTask.TaskName);
-                    Console.WriteLine("Task Priority: " + lowPriorityTask.TaskPriority);
-                    Console.WriteLine("Task Completion Status: " + lowPriorityTask.IsTaskComplete);
-                }
-                Console.WriteLine("+-----------------------------------------+");
+                filterPriorityTask = TaskList.Where(UserTask => (UserTask.Priority == TaskPriority.LowPriority)).ToList();
             }
+
+            return filterPriorityTask;
         }
     }
 }
