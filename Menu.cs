@@ -20,9 +20,9 @@ namespace TaskManager
 
         private readonly ITaskService _taskService;
 
-        public Menu()
+        public Menu(ITaskService taskService)
         {
-            _taskService = new TaskService();
+            _taskService = taskService;
         }
 
         public void ShowMenu() 
