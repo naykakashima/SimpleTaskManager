@@ -2,6 +2,8 @@
 
 A feature-rich console-based task management system built with C# and dependency injection.
 
+Took around 8 hours to make with no AI
+
 ## Features
 
 - **Task Management**:
